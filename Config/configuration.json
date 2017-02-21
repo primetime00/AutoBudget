@@ -1,0 +1,71 @@
+{
+  "banks": [
+    {
+      "name" : "simple_bank_name01",
+      "address" : "http://www.citi.com",
+      "login" : "user0000",
+      "password" : "password0000",
+      "include" : "true",
+      "signout" : "https://online.citi.com/US/JSO/signoff/SummaryRecord.do?logOff=true"
+    },
+    {
+      "name" : "simple_bank_name01",
+      "address" : "http://www.wellsfargo.com",
+      "login" : "user0001",
+      "password" : "password0001",
+      "signout" : "https://connect.secure.wellsfargo.com/auth/logout"
+    }
+  ],
+  "budget": {
+    "income": [
+      {
+        "name": "paycheck",
+        "amount": 9999.99
+      },
+      {
+        "name": "other income only in feb.",
+        "month": 2,
+        "amount": 100
+      }
+    ],
+    "expenses":[
+      {
+        "name": "Rent",
+        "amount": 2000
+      },
+      {
+        "name": "Cable",
+        "amount": 70
+      },
+      {
+        "name": "Netflix",
+        "amount": 20
+      },
+      {
+        "name": "Phone",
+        "amount": 45
+      }
+    ],
+    "ignore": [
+      "ITEM IGNORED FROM YOUR WEB TRANSACTIONS",
+      "FOR EXAMPLE: RENT, CABLE, NETFLIX, AND PHONE",
+      "NETFLIX",
+      "VERIZON",
+      "RENT PAYMENT",
+      "TIME WARNER",
+      "COMPANY PAYCHECK DEPOSIT"
+    ],
+    "savingsThreshold": 300
+  },
+  "email": {
+    "subscribers" : ["jack@jacksemail.com", "jill@jillsemail.com"],
+    "user": "jack@jacksemail.com",
+    "pass": "jacks_password"
+  },
+  "browser": {
+    "name": "firefox",
+    "title": ".*Mozilla.*",
+    "path": "C:\\PortableApps\\FirefoxPortable\\FirefoxPortable.exe"
+  }
+
+}

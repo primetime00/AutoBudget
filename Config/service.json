@@ -1,0 +1,6 @@
+{
+  "maxFailures": 3,
+  "idleMinutes": 4,
+  "sleepMinutes": 2,
+  "scheduleMinutes": 1440
+}
