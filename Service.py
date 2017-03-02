@@ -30,7 +30,9 @@ class Service:
         while 1:
             currentTime = time.time()
             secondsSinceLastRun = (currentTime - self.lastRun)
+            print("CHECKING {} {} {}".format(secondsSinceLastRun, self.scheduleTime, self.isIdle()))
             if secondsSinceLastRun > self.scheduleTime and self.isIdle():
+                print("RUNNING")
                 res = self.doTick()
                 if res == self.FAIL:
                     Email().Error(self.errorLog)
@@ -84,6 +86,7 @@ class Service:
     def isIdle(self):
         current = (ctypes.c_ulong(win32api.GetTickCount()).value / 1000)
         idle = win32api.GetLastInputInfo() / 1000
+        print("IDLE {} {}".format((current - idle), self.idle))
         return (current - idle) >= self.idle
 
 

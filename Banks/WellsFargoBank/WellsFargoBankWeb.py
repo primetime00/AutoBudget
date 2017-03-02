@@ -38,7 +38,7 @@ class WellsFargoBankWeb(BankWeb):
 
 
     def NavigateToTransactions(self):
-        self.Wait("Wells Fargo", timeout=5, post_delay=5)
+        self.Wait("Wells Fargo", timeout=5, post_delay=9)
         self.ClickLoc(496, 374)
         self.Wait("Wells Fargo", timeout=4, post_delay=3)
         self.ClickLoc(179, 638)
@@ -48,12 +48,15 @@ class WellsFargoBankWeb(BankWeb):
         self.Press('{SPACE}')
         sleep(0.25)
         self.ClickLoc(533, 811)
-        month = format(date.today().month, '02')
-        year = date.today().strftime("%y")
+        today = date.today()
+        if self.userDate is not None:
+            today = self.userDate
+        month = format(today.month, '02')
+        year = today.strftime("%y")
         self.Press('{}/01/{}'.format(month, year))
         sleep(0.5)
         self.ClickLoc(756, 811)
-        self.Press('{}/{}/{}'.format(month, date.today().day, year))
+        self.Press('{}/{}/{}'.format(month, today.day, year))
         sleep(0.5)
         self.ClickLoc(1089, 1012)
         self.Wait("Wells Fargo", timeout=4, post_delay=2.5)

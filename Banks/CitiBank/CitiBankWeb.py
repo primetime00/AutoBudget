@@ -18,6 +18,8 @@ class CitiBankWeb(BankWeb):
 
     def Login(self):
         self.Wait("Banking with Citi", post_delay=4)
+        self.ClickLoc(1292, 271) #stinking message popup
+        sleep(0.1)
         self.ClickLoc(114, 788)
         self.Press(self.user)
         self.ClickLoc(411, 788)
@@ -35,8 +37,9 @@ class CitiBankWeb(BankWeb):
     def NavigateToTransactions(self):
         self.Wait("Accounts", timeout=15, post_delay=4)
         self.ClickLoc(276, 627)
-        self.Wait("Account Information", timeout=14, post_delay=3)
+        self.Wait("Account Information", timeout=14, post_delay=4)
         self.ClickLoc(425, 123)
+        sleep(0.25)
         self.Press('{END}')
         sleep(0.5)
         self.Press('{ENTER}')
@@ -44,6 +47,8 @@ class CitiBankWeb(BankWeb):
         self.ClickLoc(280, 189)
         sleep(0.25)
         today = date.today()
+        if self.userDate is not None:
+            today = self.userDate
         month = today.strftime("%b")
         year = today.year
         value = "{}. 01, {}".format(month, year)
@@ -98,5 +103,5 @@ class CitiBankWeb(BankWeb):
         sleep(2.0)
         self.Press(self.signout)
         self.Press("{ENTER}")
-        self.Wait("Sign Off", timeout=5)
+        self.Wait("Sign Off", timeout=7)
 

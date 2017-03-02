@@ -6,10 +6,10 @@ from HTMLParser import HTMLParser
 class CitiBankHTML(HTMLParser):
     def __init__(self, fname):
         HTMLParser.__init__(self, fname)
-        self.moneyPattern = re.compile(r'\$\s*([0-9.]*)')
+        #self.moneyPattern = re.compile(r'\$\s*[.0-9]*\s*([-.0-9]*)')
 
     def parseData(self):
-        moneyPattern = re.compile(r'\$\s*([0-9.]*)')
+        moneyPattern = re.compile(r'\$\s*[.0-9]*\s*([-.0-9]*)')
         rows = self.html.find_all('tr', {'class': re.compile(".*transactionsTableRow")})
         if rows == None or len(rows) == 0:
             if "No activity available for period requested" in self.data:

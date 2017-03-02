@@ -1,4 +1,4 @@
-import json
+import json, os
 
 class Configuration:
     __instance = None
@@ -27,6 +27,23 @@ class Configuration:
     def getEmail(self):
         return self.data["email"]
 
+    def hasBrowser(self):
+        if "browser" not in self.data:
+            return False
+        if "path" not in self.data["browser"]:
+            return False
+        if os.path.exists(self.data["browser"]["path"]):
+            return True
+        return False
+
+    def installBrowser(self, name, title, path):
+        self.data["browser"] = {
+            "name":name,
+            "title":title,
+            "path":path
+        }
+        self.save()
+
     def getBrowserPath(self):
         return self.data["browser"]["path"]
 
@@ -35,3 +52,7 @@ class Configuration:
 
     def getBrowserTitle(self):
         return self.data["browser"]["title"]
+
+    def save(self):
+        with open('Config\\configuration.json', mode='w') as f:
+            json.dump(self.data, f, sort_keys=True, indent=4, separators=(',', ': '))

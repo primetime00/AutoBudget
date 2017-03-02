@@ -4,9 +4,10 @@ from calendar import monthrange
 
 
 class Budget:
-    def __init__(self):
+    def __init__(self, output=None):
         self.budgetData = Configuration().getBudget()
         self.transactions = []
+        self.outputFile = output
 
     def Calculate(self, transactions):
         self.transactions = []
@@ -30,8 +31,11 @@ class Budget:
         }
         return result
 
-    def GetSortedTransactions(self):
-        return sorted(self.transactions, key=lambda x: x["amount"], reverse=True)
+    def GetSortedTransactions(self, remove_ignore=True):
+        if not remove_ignore:
+            return sorted(self.transactions, key=lambda x: x["amount"], reverse=True)
+        return sorted([item for item in self.transactions if not self.ignored(item["name"])], key=lambda x: x["amount"], reverse=True)
+
 
 
     def addTransactions(self, trans):
@@ -55,9 +59,18 @@ class Budget:
 
     def processTransactions(self):
         total = 0
-        for trans in self.transactions:
+        if self.outputFile != None:
+            f = open(self.outputFile, mode="w")
+            t = sorted(self.transactions, key=lambda x: x["amount"])
+        else:
+            t = self.transactions
+        for trans in t:
+            if self.outputFile != None:
+                f.write('"{}", {}\n'.format(trans["name"], trans["amount"]))
             if not self.ignored(trans["name"]):
                 total += float(trans["amount"])
+        if self.outputFile != None:
+            f.close()
         today = datetime.today()
         first = datetime.strptime('{}/1/{}'.format(today.month, today.year), "%m/%d/%Y")
         delta = (today-first)

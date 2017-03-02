@@ -11,6 +11,7 @@ class BankWeb:
         self.password = bank["password"]
         self.signout = bank["signout"]
         self.site = bank["address"]
+        self.userDate = None
         self.transactions = []
         self.UI = GUI()
         self.shouldClose = True
@@ -23,7 +24,8 @@ class BankWeb:
             (self.Logout, "Logout")
         ]
 
-    def Run(self, start=0, end=-1, browser=False):
+    def Run(self, start=0, end=-1, browser=False, userDate=None):
+        self.userDate = userDate
         if browser:
             try:
                 self.UI.OpenBrowser(Configuration().getBrowserTitle(), Configuration().getBrowserPath())
@@ -66,6 +68,7 @@ class BankWeb:
         self.Press('^s')
         self.Wait("Save As", timeout=4)
         self.ClickInput(u'9')
+        sleep(0.2)
         self.Select(u'10', u'Web Page, complete (*.htm;*.html)')
         self.Press("{ENTER}")
         sleep(0.2)
@@ -81,7 +84,8 @@ class BankWeb:
             self.Wait("Confirm Save As", timeout=2, post_delay=0.5)
             self.Click(u'&Yes')
         except:
-            return
+            pass
+        sleep(4)
 
     def Logout(self):
         print("Need Defs")

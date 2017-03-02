@@ -1,8 +1,10 @@
 from __future__ import print_function
 from Budget import Budget
 from TransactionProcessor import TransactionProcessor
+from Configuration import Configuration
 from Email.Email import Email
 import traceback, sys
+from BrowserInstall import BrowserInstall
 
 
 simulation = False
@@ -17,6 +19,12 @@ if simulation and serviceMode:
         print(*args, file=sys.stderr, **kwargs)
     eprint("Service mode cannot be used with simulation data.")
     exit()
+
+#
+#if not Configuration().hasBrowser():
+#    print("YOU need to install a browser")
+#    BrowserInstall(debug=True).DownloadAndExtract()
+#    exit()
 
 def singleInstance(sim):
     try:

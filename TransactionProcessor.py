@@ -1,5 +1,6 @@
 from Configuration import Configuration
 from GUI import GUI
+from datetime import date
 
 from Banks.BankFactory import BankFactory
 
@@ -22,7 +23,7 @@ class TransactionProcessor:
         if not simulate:
             GUI().OpenBrowser(Configuration().getBrowserTitle(), Configuration().getBrowserPath())
         for bank in self.banks:
-            bank.Run(simulate=simulate)
+            bank.Run(simulate=simulate, userDate=date(2017, 2, 28))
             self.transactions.extend(bank.GetTransactions())
         if not simulate:
             GUI().CloseBrowser()
