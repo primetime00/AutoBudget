@@ -1,10 +1,10 @@
 from Configuration import Configuration
-from datetime import datetime
-from calendar import monthrange
+from Dates import Dates
 
 
 class Budget:
-    def __init__(self, output=None):
+    def __init__(self, output=None, date=Dates.empty()):
+        self.date=date
         self.budgetData = Configuration().getBudget()
         self.transactions = []
         self.outputFile = output
@@ -44,7 +44,7 @@ class Budget:
 
     def sum(self, field):
         total = 0
-        month = datetime.today().month
+        month = self.date.getDate().month
         for item in self.budgetData[field]:
             if "month" in item and item["month"] != month:
                 continue
@@ -71,15 +71,10 @@ class Budget:
                 total += float(trans["amount"])
         if self.outputFile != None:
             f.close()
-        today = datetime.today()
-        first = datetime.strptime('{}/1/{}'.format(today.month, today.year), "%m/%d/%Y")
-        delta = (today-first)
-        days = (delta.days*24*60*60+delta.seconds)/60/60/24
 
-        average = float(total)/days
+        average = float(total)/self.date.pastDays()
 
-        daysInMonth = monthrange(datetime.today().year,datetime.today().month)[1]
-        projection = average * daysInMonth
+        projection = average * self.date.lastDay()
 
         result = {
             "total": total,

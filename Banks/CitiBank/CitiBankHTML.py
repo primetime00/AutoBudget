@@ -1,6 +1,7 @@
 import re
 
 from HTMLParser import HTMLParser
+from datetime import datetime
 
 
 class CitiBankHTML(HTMLParser):
@@ -20,6 +21,9 @@ class CitiBankHTML(HTMLParser):
         for row in rows:
             transactionName = row.find('td', {'class': re.compile(".*TransactionDescriptionColumn")})
             amountName = row.find('td', {'class': re.compile(".*CreditCardTransactionAmountColumn")})
+            dateName = row.find('td', {'class': re.compile(".*TransactionDateColumn")})
             groups = moneyPattern.search(amountName.text)
             spanText = transactionName.find_all('span')[2].text.strip()
+            actualDate = dateName.text.strip().split('  ')[0]
+            d = datetime.strptime(actualDate, "%b. %d, %Y")
             self.transactions.append({"name": spanText, "amount": groups.group(1)})

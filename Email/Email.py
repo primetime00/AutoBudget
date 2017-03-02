@@ -1,6 +1,6 @@
 import os
 import smtplib
-from datetime import date
+from Dates import Dates
 
 from bs4 import BeautifulSoup
 
@@ -10,7 +10,8 @@ from Configuration import Configuration
 class Email:
     __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
-    def __init__(self):
+    def __init__(self, date=Dates.empty()):
+        self.date = date
         self.email = Configuration().getEmail()
 
 
@@ -52,7 +53,9 @@ class Email:
         html.insert(0, head)
 
         title = soup.find('h2')
-        title.string = title.text.replace("[Date]", date.today().strftime('%B'))
+        title.string = title.text.replace("[Date]", self.date.getDate().strftime('%B'))
+        if not self.date.isCurrentMonthAndYear():
+            title.string = "---Final " + title.string + "---"
 
         summaryTable = soup.find('div', {'class':'summaryTable'})
         cell = self.modifyCell(summaryTable, 'remaining', "$"+format(remaining, '.2f'))
