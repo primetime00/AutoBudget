@@ -26,4 +26,5 @@ class CitiBankHTML(HTMLParser):
             spanText = transactionName.find_all('span')[2].text.strip()
             actualDate = dateName.text.strip().split('  ')[0]
             d = datetime.strptime(actualDate, "%b. %d, %Y")
-            self.transactions.append({"name": spanText, "amount": groups.group(1)})
+            if self.userDate.getDate().month == d.month and self.userDate.getDate().year == d.year:
+                self.transactions.append({"name": spanText, "amount": groups.group(1)})

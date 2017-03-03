@@ -2,6 +2,7 @@ from GUI import GUI
 
 from Configuration import Configuration
 from time import sleep
+from Dates import Dates
 
 
 class BankWeb:
@@ -24,7 +25,7 @@ class BankWeb:
             (self.Logout, "Logout")
         ]
 
-    def Run(self, start=0, end=-1, browser=False, userDate=None):
+    def Run(self, start=0, end=-1, browser=False, userDate=Dates.empty()):
         self.userDate = userDate
         if browser:
             try:

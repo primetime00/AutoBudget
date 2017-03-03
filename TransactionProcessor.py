@@ -1,8 +1,9 @@
 from Configuration import Configuration
 from GUI import GUI
-from datetime import date
+from Dates import Dates
 
 from Banks.BankFactory import BankFactory
+
 
 
 class TransactionProcessor:
@@ -19,7 +20,7 @@ class TransactionProcessor:
             bList.append(self.bankFactory.createBank(bankData["name"]))
         return bList
 
-    def Run(self, simulate=False, date=date.today()):
+    def Run(self, simulate=False, date=Dates.empty()):
         if not simulate:
             GUI().OpenBrowser(Configuration().getBrowserTitle(), Configuration().getBrowserPath())
         for bank in self.banks:

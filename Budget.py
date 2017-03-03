@@ -1,5 +1,6 @@
 from Configuration import Configuration
 from Dates import Dates
+from History import History
 
 
 class Budget:
@@ -8,6 +9,7 @@ class Budget:
         self.budgetData = Configuration().getBudget()
         self.transactions = []
         self.outputFile = output
+        self.history = History(date=date)
 
     def Calculate(self, transactions):
         self.transactions = []
@@ -29,6 +31,10 @@ class Budget:
             "threshold" : self.budgetData["savingsThreshold"],
             "remaining" : remaining
         }
+
+        #if this is a past budget, lets write out the data
+        if not self.date.isCurrentMonthAndYear():
+            self.history.Store(spending['total'], remaining, self.date)
         return result
 
     def GetSortedTransactions(self, remove_ignore=True):
@@ -72,9 +78,10 @@ class Budget:
         if self.outputFile != None:
             f.close()
 
-        average = float(total)/self.date.pastDays()
+        #lets include some history
+        average = self.history.calculateWeightedAverage(float(total)/self.date.pastDays(), self.date)
+        projection = average*self.date.remainingDays()+total
 
-        projection = average * self.date.lastDay()
 
         result = {
             "total": total,

@@ -82,6 +82,10 @@ class Dates():
         today = datetime.now()
         return self.getDate().month == today.month and self.getDate().year == today.year
 
+    def getFirstOfNextMonth(self):
+        v = self.getDate()
+        return datetime(v.year + int(v.month / 12), ((v.month % 12) + 1), 1)
+
 
 
 

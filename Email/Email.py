@@ -19,7 +19,9 @@ class Email:
         html = self.processData(data)
         bstr = format(data['remaining'], '.2f')
         send_to = self.email["subscribers"]
-        if data["forecast"] < data['threshold']:
+        if not self.date.isCurrentMonthAndYear():
+            subject = "${} {} in {}".format(bstr, "overspent" if data['remaining'] <= 0 else "saved", self.date.getDate().strftime('%B'))
+        elif data["forecast"] < data['threshold']:
             subject = "${} remaining [We are losing money!]".format(bstr)
         else:
             subject = "${} remaining [We are saving money!]".format(bstr)

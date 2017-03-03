@@ -1,12 +1,16 @@
 from bs4 import BeautifulSoup
+from Dates import Dates
+
 class HTMLParser:
     def __init__(self, fname):
         self.transactions = []
         self.data = ""
         self.filename = fname
         self.html = None
+        self.userDate = None
 
-    def Run(self):
+    def Run(self, userDate=Dates.empty()):
+        self.userDate = userDate
         try:
             with open(self.filename) as html:
                 self.data = html.read()
