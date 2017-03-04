@@ -31,32 +31,11 @@ class AutoBudget:
             exit()
 
     def Run(self):
+        from Service import Service
         if self.args.service:
-            from Service import Service
             Service().Run()
         else:
-            self.singleRun(simulate=False)
-
-    def singleRun(self, simulate=False):
-        date = self.args.date
-        try:
-            self.processor = TransactionProcessor()
-            self.processor.Run(simulate=simulate, date=date)
-        except Exception as e:
-            data = traceback.format_exc().splitlines()
-            Email().Error(data)
-            exit()
-        self.processBudget()
-
-    def processBudget(self):
-        date = self.args.date
-        budget = Budget(date=date, output="C:\\tmp\\trans.csv")
-        result = budget.Calculate(self.processor.GetTransactions())
-        self.emailResults(result)
-
-    def emailResults(self, result):
-        date = self.args.date
-        Email(date=date).Run(result)
+            Service().Single(simulate=self.args.simulation, date=self.args.date)
 
 AutoBudget().Run()
 

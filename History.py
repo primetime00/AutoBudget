@@ -1,10 +1,12 @@
 import json
 from datetime import datetime
 from Dates import Dates
+from Singleton import Singleton
 
-class History:
-    def __init__(self, date=Dates.empty()):
-        self.date = date
+class History(Singleton):
+
+    def firstTime(self, **kwargs):
+        self.date = (kwargs["date"] if "date" in kwargs else Dates.empty())
         try:
             with open('Config\\history.json', mode='r') as f:
                 jData = f.read()
@@ -17,9 +19,12 @@ class History:
             self.saved = 0
             self.size = 0
 
+
     def calculateTotalAverage(self):
         valids = [item['average'] for item in self.data if self.isValid(item['date'])]
         self.size = len(valids)
+        if len(valids) == 0:
+            return 0
         return sum(valids) / len(valids)
 
     def calculateTotalSaved(self):
@@ -62,12 +67,13 @@ class History:
             self.data.append({"date": dt, "average": average, "saved": remaining})
         with open('Config\\history.json', mode='w') as f:
             f.write(json.dumps(self.data, indent=2))
-        exit()
 
     def calculateWeightedAverage(self, average, date):
         averages = [self.average, average]
         days = [self.size*30, date.pastDays()]
         return sum(days[g] * averages[g] for g in range(len(averages))) / sum(days)
 
+    def empty(self):
+        return len(self.data) == 0
 
 

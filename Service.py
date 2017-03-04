@@ -1,6 +1,8 @@
 import win32.win32api as win32api
 import time, ctypes, os
 from Configuration import Configuration
+from Dates import Dates
+from History import History
 
 from TransactionProcessor import TransactionProcessor
 from Budget import Budget
@@ -12,8 +14,13 @@ class Service:
     RERUN = 0
     SUCCESS = 1
     FAIL = 2
+    CATCHUP = 3
 
     def __init__(self):
+        self.debug = True
+        self.errorLog = []
+
+    def initialize(self):
         self.data = {}
         with open(os.getcwd()+"\\Config\\service.json") as cFile:
             self.data = json.loads(cFile.read())
@@ -24,9 +31,15 @@ class Service:
         self.scheduleTime = 60*self.data["scheduleMinutes"]
         self.lastRun = time.time() - (self.scheduleTime * 2)
 
-        self.errorLog = []
+
+
+    def Single(self, date=Dates.empty(), simulate=False):
+        res = self.tick(simulate=simulate, date=date)
+        if not res:
+            Email().Error(self.errorLog)
 
     def Run(self):
+        self.initialize()
         while 1:
             currentTime = time.time()
             secondsSinceLastRun = (currentTime - self.lastRun)
@@ -41,6 +54,9 @@ class Service:
                 elif res == self.SUCCESS:
                     time.sleep(self.sleepTime)  # check again in 15 minutes
                     continue
+                elif res == self.CATCHUP:
+                    time.sleep(4)  # grab the next set of data
+                    continue
                 else:
                     time.sleep(10)
                     continue
@@ -54,8 +70,18 @@ class Service:
         os.system('taskkill/im ' + Configuration().getBrowserName() + '.exe /f')
 
     def doTick(self):
-        res = self.tick()
+        previous = False
+        #do we need to finalize last month's information
+        if not History().empty() and not History().includesDate(Dates.previousMonth().month, Dates.previousMonth().year):
+            res = self.tick(date=Dates(Dates.previousMonth().month, Dates.previousMonth().year))
+            previous = True
+        else:
+            res = self.tick()
+
         if (res == True):
+            self.failures = 0
+            if previous:
+                return self.CATCHUP
             self.lastRun = time.time()
             self.failures = 0
             return self.SUCCESS
@@ -67,27 +93,29 @@ class Service:
                 return self.FAIL
             return self.RERUN
 
-    def tick(self):
+    def tick(self, simulate=False, date=Dates.empty()):
         print("Doing tick")
         processor = TransactionProcessor()
         try:
-            processor.Run(simulate=False)
+            processor.Run(simulate=simulate, date=date)
         except:
             self.errorLog.append("----------------------------------------------------")
             self.errorLog.extend(traceback.format_exc().splitlines())
             self.errorLog.append("----------------------------------------------------")
+            for l in self.errorLog:
+                print(l)
             return False
 
-        budget = Budget()
+        budget = Budget(date=date)
         result = budget.Calculate(processor.GetTransactions())
-        Email().Run(result)
+        Email(date=date).Run(result)
         return True
 
     def isIdle(self):
+        if self.debug:
+            return True
         current = (ctypes.c_ulong(win32api.GetTickCount()).value / 1000)
         idle = win32api.GetLastInputInfo() / 1000
         print("IDLE {} {}".format((current - idle), self.idle))
         return (current - idle) >= self.idle
 
-
-Service().Run()

@@ -1,14 +1,8 @@
 import json, os
+from Singleton import Singleton
 
-class Configuration:
-    __instance = None
-    def __new__(cls, *args, **kwargs):
-        if Configuration.__instance is None:
-            Configuration.__instance = object.__new__(cls)
-            Configuration.__instance.firstTime()
-        return Configuration.__instance
-
-    def firstTime(self):
+class Configuration(Singleton):
+    def firstTime(self, **kwargs):
         with open('Config\\configuration.json', mode='r') as f:
             jData = f.read()
         self.data = json.loads(jData)

@@ -1,4 +1,4 @@
-from datetime import date, datetime, time
+from datetime import date, datetime, time, timedelta
 from calendar import monthrange
 
 class Dates():
@@ -30,6 +30,10 @@ class Dates():
         if not found:
             raise Exception("Can't parse date")
         return cls(d.month, d.year)
+
+    @staticmethod
+    def previousMonth():
+        return datetime.now().replace(day=1) - timedelta(days=1)
 
 
 
