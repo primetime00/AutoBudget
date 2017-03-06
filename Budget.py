@@ -46,7 +46,7 @@ class Budget:
 
     def addTransactions(self, trans):
         for tran in trans:
-            self.transactions.append({"name":tran["name"], "amount":float(tran["amount"])})
+            self.transactions.append({"date":tran["date"], "name":tran["description"], "amount":tran["amount"]})
 
     def sum(self, field):
         total = 0

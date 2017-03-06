@@ -11,9 +11,16 @@ class Configuration(Singleton):
         for bank in self.data["banks"]:
             if bank["name"] == name:
                 return bank
+        return None
 
     def getBanks(self):
         return self.data["banks"]
+
+    def getHTMLParser(self, bank):
+        bank = self.findBank(bank)
+        if bank == None:
+            return None
+        return bank["parser"]
 
     def getBudget(self):
         return self.data["budget"]
