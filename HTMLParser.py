@@ -12,7 +12,7 @@ class HTMLParser:
     #     self.html = None
     #     self.userDate = None
 
-    def __init__(self, fname, dateString, descriptionStr, depositStr, withdrawStr):
+    def __init__(self, fname, dateString, descriptionStr, debitStr, depositStr):
         self.transactions = []
         self.data = ""
         self.filename = fname
@@ -21,7 +21,7 @@ class HTMLParser:
         self.date = dateString
         self.description = descriptionStr
         self.deposit = depositStr
-        self.withdrawal = withdrawStr
+        self.debit = debitStr
 
     def __init__(self, fname, bankName):
         self.transactions = []
@@ -34,8 +34,8 @@ class HTMLParser:
             raise Exception("Can't find HTML parser")
         self.date = parser["date"]
         self.description = parser["description"]
-        self.deposit = parser["deposit"]
-        self.withdrawal = parser["withdrawal"] if "withdrawal" in parser else None
+        self.debit = parser["debit"]
+        self.deposit = parser["deposit"] if "deposit" in parser else None
         self.empty = parser["empty"] if "empty" in parser else None
 
 
@@ -68,10 +68,11 @@ class HTMLParser:
                 tableInfo["date"] = i
             elif self.description in cells[i].text:
                 tableInfo["description"] = i
-            elif self.deposit in cells[i].text:
+            elif self.debit in cells[i].text:
+                tableInfo["debit"] = i
+            elif self.deposit != None and self.deposit in cells[i].text:
                 tableInfo["deposit"] = i
-            elif self.withdrawal != None and self.withdrawal in cells[i].text:
-                tableInfo["withdrawal"] = i
+
         table = row.find_parent('table')
         if 'class' in table.attrs:
             tableInfo["table"] = table["class"][0]
@@ -83,7 +84,7 @@ class HTMLParser:
 
     def processTransactions(self, info, soup):
         trans = []
-        cashRe = re.compile(r'(\d*\.\d{2})')
+        cashRe = re.compile(r'(-*\s*\d*\.\d{2})')
         table = soup.find('table', attrs={'class': info['table']})
         if table == None:
             table = soup.find('table', attrs={'id': info['table']})
@@ -97,7 +98,7 @@ class HTMLParser:
             for i in range(0, len(cells)):
                 if i == info["date"]:
                     try:
-                        tx["date"] = parser.parse(cells[i].text, fuzzy=True).strftime("%m/%d/%Y")
+                        tx["date"] = parser.parse(cells[i].text, fuzzy=True, ignoretz=True)
                     except:
                         error = True
                         pass
@@ -108,14 +109,16 @@ class HTMLParser:
                         tx["description"] = val[0]
                     else:
                         tx["description"] = val[0] + ' ' + val[1]
-                elif i == info["deposit"]:
+                elif i == info["debit"]:
                     val = cells[i].text.strip().replace("$", "").replace(",", "")
                     if len(val) == 0:
                         continue
-                    val = cashRe.search(val).group(0)
+                    val = cashRe.search(val).group(0).strip().replace(" ", "")
                     tx["amount"] = float(val)
-                elif 'withdrawal' in info and 'amount' not in tx and i == info["withdrawal"]:
+                elif 'deposit' in info and 'amount' not in tx and i == info["deposit"]:
                     val = cells[i].text.strip().replace("$", "").replace(",", "")
+                    if len(val) == 0:
+                        continue
                     val = cashRe.search(val).group(0)
                     tx["amount"] = -float(val)
             if error == False and len(tx.keys()) > 0:
@@ -125,8 +128,8 @@ class HTMLParser:
     def getTransactions(self):
         return self.transactions
 
-    def Run(self, userDate=Dates.empty()):
-        self.userDate = userDate
+    def Run(self, date=Dates.empty()):
+        self.userDate = date
         try:
             self.transactions = self.processHTML()
             if self.transactions == None:

@@ -20,11 +20,11 @@ class TransactionProcessor:
             bList.append(self.bankFactory.createBank(bankData["name"]))
         return bList
 
-    def Run(self, simulate=False, date=Dates.empty()):
+    def Run(self, simulate=False, date=Dates.empty(), lookBack=1):
         if not simulate:
             GUI().OpenBrowser(Configuration().getBrowserTitle(), Configuration().getBrowserPath())
         for bank in self.banks:
-            bank.Run(simulate=simulate, userDate=date)
+            bank.Run(simulate=simulate, date=date, lookBack=lookBack)
             self.transactions.extend(bank.GetTransactions())
         if not simulate:
             GUI().CloseBrowser()

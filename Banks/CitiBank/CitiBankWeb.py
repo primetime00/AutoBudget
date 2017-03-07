@@ -38,7 +38,7 @@ class CitiBankWeb(BankWeb):
         today = self.userDate.getDate()
         month = today.strftime("%b")
         year = today.year
-        value = "{}. 01, {}".format(month, year)
+        value = "{}. 01, {}".format(self.beginDate.getDate().strftime("%b"), self.beginDate.getDate().year)
         self.Type(value)
         self.Press('{ESC}')
         self.ClickLoc(490, 189)

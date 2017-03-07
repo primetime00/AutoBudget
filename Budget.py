@@ -9,18 +9,51 @@ class Budget:
         self.budgetData = Configuration().getBudget()
         self.transactions = []
         self.outputFile = output
-        self.history = History(date=date)
+        self.history = History()
 
-    def Calculate(self, transactions):
-        self.transactions = []
-        self.addTransactions(transactions)
+    def Run(self, transactions):
+        self.SortTransactions(transactions)
+
+        results = []
+        for trans in self.transactions:
+            if (len(trans) == 0):
+                continue
+            currentDate = Dates(trans[0]["date"].month, trans[0]["date"].year)
+            if currentDate > self.date:
+                break
+            val = self.Calculate(trans)
+            if self.history.needsPosted(currentDate) or currentDate == self.date:
+               results.append(val)
+        return results
+
+
+
+    def SortTransactions(self, transactions):
+        transactions.sort(key=lambda x: x["date"])
+        count = 0
+        start = 0
+        previous = transactions[0]["date"].month
+        for i in range(0, len(transactions)):
+            current = transactions[i]["date"].month
+            if current != previous:
+                count += 1
+                self.transactions.append(transactions[start:i])
+                start = i
+                previous = current
+        self.transactions.append(transactions[start:i + 1])
+
+    def Calculate(self, monthTransactions):
+
+
+        self.currentTransactions = monthTransactions
         income = self.sumIncome()
         expenses = self.sumExpenses()
         spending = self.processTransactions()
         remaining = income - expenses - spending["total"]
         forcast = income - expenses - spending["projected"]
 
-        topSpends = self.GetSortedTransactions()[0:3]
+        topSpends = self.GetSortedTransactions()[0:6]
+        date = Dates(self.currentTransactions[0]["date"].month, self.currentTransactions[0]["date"].year)
 
         result = {
             "income" : income,
@@ -29,18 +62,19 @@ class Budget:
             "expenses" : expenses,
             "forecast" : forcast,
             "threshold" : self.budgetData["savingsThreshold"],
-            "remaining" : remaining
+            "remaining" : remaining,
+            "date" : date
         }
 
         #if this is a past budget, lets write out the data
-        if not self.date.isCurrentMonthAndYear():
-            self.history.Store(spending['total'], remaining, self.date)
+        if not date.isCurrentMonthAndYear():
+            self.history.Store(spending['total'], remaining, date)
         return result
 
     def GetSortedTransactions(self, remove_ignore=True):
         if not remove_ignore:
-            return sorted(self.transactions, key=lambda x: x["amount"], reverse=True)
-        return sorted([item for item in self.transactions if not self.ignored(item["name"])], key=lambda x: x["amount"], reverse=True)
+            return sorted(self.currentTransactions, key=lambda x: x["amount"], reverse=True)
+        return sorted([item for item in self.currentTransactions if not self.ignored(item["description"])], key=lambda x: x["amount"], reverse=True)
 
 
 
@@ -69,19 +103,26 @@ class Budget:
             f = open(self.outputFile, mode="w")
             t = sorted(self.transactions, key=lambda x: x["amount"])
         else:
-            t = self.transactions
+            t = self.currentTransactions
         for trans in t:
             if self.outputFile != None:
                 f.write('"{}", {}\n'.format(trans["name"], trans["amount"]))
-            if not self.ignored(trans["name"]):
-                total += float(trans["amount"])
+            if not self.ignored(trans["description"]):
+                total += trans["amount"]
         if self.outputFile != None:
             f.close()
 
-        #lets include some history
-        average = self.history.calculateWeightedAverage(float(total)/self.date.pastDays(), self.date)
-        projection = average*self.date.remainingDays()+total
-
+        #is this month over?
+        now = Dates.empty()
+        then = self.currentTransactions[0]["date"]
+        oldDate = Dates(then.month, then.year)
+        days = oldDate.pastDays() + oldDate.remainingDays()
+        if (now > Dates(then.month, then.year)):
+            average = total / days
+            projection = total
+        else: #we are working with an incomplete month, use history
+            average = self.history.calculateWeightedAverage(float(total)/self.date.pastDays(), self.date)
+            projection = average*self.date.remainingDays()+total
 
         result = {
             "total": total,

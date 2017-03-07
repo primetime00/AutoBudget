@@ -1,31 +1,29 @@
+
 import os
 import smtplib
 from Dates import Dates
+from History import History
 
 from bs4 import BeautifulSoup
 
 from Configuration import Configuration
 
 
+
 class Email:
     __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
-    def __init__(self, date=Dates.empty()):
-        self.date = date
+    def __init__(self):
         self.email = Configuration().getEmail()
+        self.history = History()
 
 
-    def Run(self, data):
-        html = self.processData(data)
-        bstr = format(data['remaining'], '.2f')
-        send_to = self.email["subscribers"]
-        if not self.date.isCurrentMonthAndYear():
-            subject = "${} {} in {}".format(bstr, "overspent" if data['remaining'] <= 0 else "saved", self.date.getDate().strftime('%B'))
-        elif data["forecast"] < data['threshold']:
-            subject = "${} remaining [We are losing money!]".format(bstr)
-        else:
-            subject = "${} remaining [We are saving money!]".format(bstr)
-        self.send(send_to, subject, html)
+    def Run(self, data, date=Dates.empty()):
+        self.date = date
+        for item in data:
+            self.processMonth(item)
+        self.history.writeData()
+
 
     def Error(self, data):
         send_to = self.email["user"]
@@ -34,7 +32,7 @@ class Email:
         self.send(send_to, subject, body)
 
 
-    def processData(self, data):
+    def generateHTML(self, data):
         with open(self.__location__+"/"+"style.css") as cssFile:
             css = cssFile.read()
         with open(self.__location__+"/"+"template.html") as htmlFile:
@@ -56,7 +54,8 @@ class Email:
 
         title = soup.find('h2')
         title.string = title.text.replace("[Date]", self.date.getDate().strftime('%B'))
-        if not self.date.isCurrentMonthAndYear():
+        date = data["date"]
+        if not date.isCurrentMonthAndYear():
             title.string = "---Final " + title.string + "---"
 
         summaryTable = soup.find('div', {'class':'summaryTable'})
@@ -91,7 +90,7 @@ class Email:
         for item in top:
             row = soup.new_tag('tr')
             cell1 = soup.new_tag('td')
-            cell1.string = item['name'].replace('  ', ' ')
+            cell1.string = item['description'].replace('  ', ' ')
             row.append(cell1)
             cell2 = soup.new_tag('td')
             cell2.string = '$'+format(item['amount'], '.2f')
@@ -131,4 +130,24 @@ class Email:
             print('successfully sent the mail')
         except:
             print("failed to send mail")
+
+    def processMonth(self, monthData):
+        if (monthData == None): #we have no result
+            return
+            #self.Error(["There is no data for month of {} {}".format(self.date.getDate().strftime("%B"), self.date.getDate().year)])
+            #return
+        html = self.generateHTML(monthData)
+        bstr = format(monthData['remaining'], '.2f')
+        send_to = self.email["subscribers"]
+        date = monthData["date"]
+        if not date.isCurrentMonthAndYear():
+            subject = "${} {} in {}".format(bstr, "overspent" if monthData['remaining'] <= 0 else "saved", date.getDate().strftime('%B'))
+        elif monthData["forecast"] < monthData['threshold']:
+            subject = "${} remaining [We are losing money!]".format(bstr)
+        else:
+            subject = "${} remaining [We are saving money!]".format(bstr)
+        self.send(send_to, subject, html)
+        self.history.Post(date)
+
+
 

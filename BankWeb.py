@@ -25,8 +25,9 @@ class BankWeb:
             (self.Logout, "Logout")
         ]
 
-    def Run(self, start=0, end=-1, browser=False, userDate=Dates.empty()):
-        self.userDate = userDate
+    def Run(self, start=0, end=-1, browser=False, date=Dates.empty(), lookBack=1):
+        self.userDate = date
+        self.beginDate = Dates.previousMonth(self.userDate, lookBack)
         if browser:
             try:
                 self.UI.OpenBrowser(Configuration().getBrowserTitle(), Configuration().getBrowserPath())

@@ -10,7 +10,7 @@ from Banks.CitiBank import CitiBankHTML
 class CitiBank(Bank):
     def __init__(self, name):
         Bank.__init__(self, name)
-        self.bank = CitiBankWeb.CitiBankWeb(self.saveFile)
+        self.bankWeb = CitiBankWeb.CitiBankWeb(self.saveFile)
         #self.parser = CitiBankHTML.CitiBankHTML(self.saveFile)
-        self.parser = HTMLParser(self.saveFile, "citi")
+        self.bankParser = HTMLParser(self.saveFile, "citi")
 

@@ -33,8 +33,8 @@ class Service:
 
 
 
-    def Single(self, date=Dates.empty(), simulate=False):
-        res = self.tick(simulate=simulate, date=date)
+    def Single(self, simulate=False):
+        res = self.tick(simulate=simulate, date=Configuration().getSettings()["currentDate"])
         if not res:
             Email().Error(self.errorLog)
 
@@ -71,12 +71,7 @@ class Service:
 
     def doTick(self):
         previous = False
-        #do we need to finalize last month's information
-        if not History().empty() and not History().includesDate(Dates.previousMonth().month, Dates.previousMonth().year):
-            res = self.tick(date=Dates(Dates.previousMonth().month, Dates.previousMonth().year))
-            previous = True
-        else:
-            res = self.tick()
+        res = self.tick()
 
         if (res == True):
             self.failures = 0
@@ -93,11 +88,11 @@ class Service:
                 return self.FAIL
             return self.RERUN
 
-    def tick(self, simulate=False, date=Dates.empty()):
+    def tick(self, simulate=False, date=Dates.empty(), lookBack=Configuration().getSettings()["lookBackMonths"]):
         print("Doing tick")
         processor = TransactionProcessor()
         try:
-            processor.Run(simulate=simulate, date=date)
+            processor.Run(simulate=simulate, date=date, lookBack=lookBack)
         except:
             self.errorLog.append("----------------------------------------------------")
             self.errorLog.extend(traceback.format_exc().splitlines())
@@ -107,8 +102,8 @@ class Service:
             return False
 
         budget = Budget(date=date)
-        result = budget.Calculate(processor.GetTransactions())
-        Email(date=date).Run(result)
+        results = budget.Run(processor.GetTransactions())
+        Email().Run(results)
         return True
 
     def isIdle(self):

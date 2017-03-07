@@ -1,8 +1,5 @@
 from __future__ import print_function
-from Budget import Budget
-from TransactionProcessor import TransactionProcessor
-from Email.Email import Email
-import traceback, sys, argparse
+import sys, argparse
 from Dates import Dates
 from BrowserInstall import BrowserInstall
 
@@ -16,8 +13,10 @@ class AutoBudget:
         parser = argparse.ArgumentParser()
         parser.add_argument('--simulation', action='store_true', help='Run with simulated data')
         parser.add_argument('--service', action='store_true', help='Run in service mode')
-        parser.add_argument('--date', help='Run budget on a different date/year', type=Dates.string,
-                            default=Dates.empty())
+#        parser.add_argument('--date', help='Run budget on a different date/year', type=Dates.string,
+#                            default=Dates.empty())
+ #       parser.add_argument('--startDate', help='Gather transactions starting from this date', type=int,
+#                            default=1)
         try:
             self.args = parser.parse_args()
         except Exception as e:
@@ -35,7 +34,7 @@ class AutoBudget:
         if self.args.service:
             Service().Run()
         else:
-            Service().Single(simulate=self.args.simulation, date=self.args.date)
+            Service().Single(simulate=self.args.simulation)
 
 AutoBudget().Run()
 

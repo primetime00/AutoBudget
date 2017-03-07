@@ -6,7 +6,6 @@ from Singleton import Singleton
 class History(Singleton):
 
     def firstTime(self, **kwargs):
-        self.date = (kwargs["date"] if "date" in kwargs else Dates.empty())
         try:
             with open('Config\\history.json', mode='r') as f:
                 jData = f.read()
@@ -39,20 +38,14 @@ class History(Singleton):
                 return True
         return False
 
-    def indexOf(self, month, year):
+    def indexOf(self, date):
         for i in range(0, len(self.data)):
-            dt = datetime.strptime(self.data[i]['date'], "%Y-%m")
-            if dt.year == year and dt.month == month:
+            if Dates.string(self.data[i]['date']) == date:
                 return i
         return -1
 
     def isValid(self, dateStr):
-        try:
-            dt = datetime.strptime(dateStr, "%Y-%m")
-        except:
-            return False
-        now = self.date.getDate()
-        if dt.year > now.year or (dt.year == now.year and dt.month >= now.month):
+        if Dates.string(dateStr) > Dates.empty():
             return False
         return True
 
@@ -60,13 +53,30 @@ class History(Singleton):
         dt = date.getDate().strftime("%Y-%m")
         totalDays = date.pastDays()+date.remainingDays()
         average = spending / totalDays
-        index = self.indexOf(date.getDate().month, date.getDate().year)
+        index = self.indexOf(date)
         if index >= 0:
-            self.data[index] = {"date": dt, "average": average, "saved": remaining}
+            self.data[index] = {"date": dt, "average": average, "saved": remaining, "posted": self.data[index]["posted"]}
         else:
-            self.data.append({"date": dt, "average": average, "saved": remaining})
-        with open('Config\\history.json', mode='w') as f:
-            f.write(json.dumps(self.data, indent=2))
+            self.data.append({"date": dt, "average": average, "saved": remaining, "posted":False})
+        self.writeData()
+        self.average = self.calculateTotalAverage()
+        self.saved = self.calculateTotalSaved()
+
+    def hasPosted(self, date):
+        loc = self.indexOf(date)
+        if loc == -1:
+            return False
+        return self.data[loc]["posted"]
+
+    def needsPosted(self, date):
+        if not self.hasPosted(date):
+            if date.daysSinceLastDay() > 3:
+                return True
+        return False
+
+
+
+
 
     def calculateWeightedAverage(self, average, date):
         averages = [self.average, average]
@@ -75,5 +85,16 @@ class History(Singleton):
 
     def empty(self):
         return len(self.data) == 0
+
+    def Post(self, date):
+        loc = self.indexOf(date)
+        if loc == -1:
+            return
+        self.data[loc]["posted"] = True
+
+    def writeData(self):
+        with open('Config\\history.json', mode='w') as f:
+            f.write(json.dumps(self.data, indent=2))
+
 
 

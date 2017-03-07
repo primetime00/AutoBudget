@@ -11,6 +11,11 @@ class Dates():
         '%m-%d-%Y',
         '%m-%y',
         '%m-%d-%y',
+        '%Y-%m',
+        '%Y-%m-%d',
+        '%y-%m',
+        '%y-%m-%d',
+
     ]
 
     @classmethod
@@ -31,21 +36,70 @@ class Dates():
             raise Exception("Can't parse date")
         return cls(d.month, d.year)
 
-    @staticmethod
-    def previousMonth():
-        return datetime.now().replace(day=1) - timedelta(days=1)
+    @classmethod
+    def previousMonth(cls, numMonths=1):
+        return cls.previousMonth(cls.empty(), numMonths=numMonths)
 
+    @classmethod
+    def previousMonth(cls, userDate, numMonths=1):
+        if numMonths < 1:
+            raise Exception("Previous number of months must be 1 or more.")
+        d = userDate.getDate()
+        for i in range(0, numMonths):
+            d = d.replace(day=1) - timedelta(days=1)
+        return cls(d.month, d.year)
 
+    def typeCheck(self, other):
+        if type(other) is type(self):
+            return True
+        return False
 
     def __init__(self, month, year):
         self.date = self.calculateDayAndTime(month, year)
 
+    def __lt__(self, other):
+        if self.typeCheck(other):
+            c1 = (self.getDate().month < other.getDate().month) and (self.getDate().year == other.getDate().year)
+            c2 = (self.getDate().year < other.getDate().year)
+            return c1 or c2
+        return False
+
+    def __gt__(self, other):
+        if self.typeCheck(other):
+            c1 = (self.getDate().month > other.getDate().month) and (self.getDate().year == other.getDate().year)
+            c2 = (self.getDate().year > other.getDate().year)
+            return c1 or c2
+        return False
+
+
+    def __eq__(self, other):
+        if self.typeCheck(other):
+            c1 = (self.getDate().month == other.getDate().month) and (self.getDate().year == other.getDate().year)
+        else:
+            c1 = False
+        return c1
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __ge__(self, other):
+        return self.__eq__(other) or self.__gt__(other)
+
+    def __le__(self, other):
+        return self.__eq__(other) or self.__lt__(other)
+
+    def __str__(self):
+        return self.date.strftime("%m/%Y")
 
     def getDate(self):
         return self.date
 
     def lastDay(self):
         return monthrange(self.date.year, self.date.month)[1]
+
+    def daysSinceLastDay(self):
+        now = Dates.empty()
+        return (now.getDate() - self.date).days
 
     def remainingTime(self):
         lastTime = datetime.combine(date(month=self.date.month, day=self.lastDay(), year=self.date.year), time.max)

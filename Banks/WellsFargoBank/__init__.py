@@ -10,9 +10,9 @@ from HTMLParser import HTMLParser
 class WellsFargoBank(Bank):
     def __init__(self, name):
         Bank.__init__(self, name)
-        self.bank = WellsFargoBankWeb.WellsFargoBankWeb(self.saveFile)
+        self.bankWeb = WellsFargoBankWeb.WellsFargoBankWeb(self.saveFile)
         #self.parser = WellsFargoHTML.WellsFargoHTML(self.saveFile)
-        self.parser = HTMLParser(self.saveFile, "wells")
+        self.bankParser = HTMLParser(self.saveFile, "wells")
 
 
 
