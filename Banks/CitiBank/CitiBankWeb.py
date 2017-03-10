@@ -25,6 +25,11 @@ class CitiBankWeb(BankWeb):
 
     def NavigateToTransactions(self):
         self.Wait("Accounts", timeout=15, post_delay=4)
+        data = self.GetClipBoard()
+        if "Reminder" in data:
+            self.SetYOffset(80)
+
+
         self.ClickLoc(276, 627)
         self.Wait("Account Information", timeout=14, post_delay=6)
         self.ClickLoc(425, 123)

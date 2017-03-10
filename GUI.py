@@ -1,4 +1,4 @@
-from pywinauto import Application as AutoApp, findwindows, timings
+from pywinauto import Application as AutoApp, findwindows, timings, clipboard
 from time import sleep, time
 from ctypes import windll
 
@@ -77,5 +77,10 @@ class GUI:
         px = x
         py = y
         self.currentWindow.ClickInput(coords=(px, py))
+
+    def GetClipBoard(self):
+        self.currentWindow.type_keys("^a", pause=None)
+        self.currentWindow.type_keys("^c", pause=None)
+        return clipboard.GetData()
 
 

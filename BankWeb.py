@@ -18,12 +18,14 @@ class BankWeb:
         self.shouldClose = True
         self.saveFile = saveFile
         self.processMap = [
+            (self.Debug, "Debug"),
             (self.OpenSite, "OpenSite"),
             (self.Login, "Login"),
             (self.NavigateToTransactions, "NavigateToTransactoins"),
             (self.SaveTransactions, "SaveTransactions"),
             (self.Logout, "Logout")
         ]
+        self.offsets = (0,0)
 
     def Run(self, start=0, end=-1, browser=False, date=Dates.empty(), lookBack=1):
         self.userDate = date
@@ -65,6 +67,16 @@ class BankWeb:
     def NavigateToTransactions(self):
         print("Need Defs")
         raise Exception("NavigateToTransactions Needs Definition")
+
+    def Debug(self):
+        pass
+
+    def SetXOffset(self, val):
+        self.offsets = (val, self.offsets[1])
+
+    def SetYOffset(self, val):
+        self.offsets = (self.offsets[0], val)
+
 
     def SaveTransactions(self):
         self.Press('^s')
@@ -113,7 +125,12 @@ class BankWeb:
         self.UI.Select(name, value)
 
     def ClickLoc(self, x, y):
+        x+=self.offsets[0]
+        y+=self.offsets[1]
         self.UI.ClickLocation(x, y)
+
+    def GetClipBoard(self):
+        return self.UI.GetClipBoard()
 
 
 
