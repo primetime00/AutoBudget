@@ -28,6 +28,7 @@ class CitiBankWeb(BankWeb):
         data = self.GetClipBoard()
         if "Reminder" in data:
             self.SetYOffset(80)
+            sleep(0.5)
 
 
         self.ClickLoc(276, 627)
