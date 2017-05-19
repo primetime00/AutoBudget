@@ -80,8 +80,9 @@ class History(Singleton):
 
     def calculateWeightedAverage(self, average, date):
         averages = [self.average, average]
-        days = [self.size*30, date.pastDays()]
-        return sum(days[g] * averages[g] for g in range(len(averages))) / sum(days)
+        days = [date.remainingDays(), date.pastDays()]
+        weighted = sum(days[g] * averages[g] for g in range(len(averages))) / sum(days)
+        return weighted
 
     def empty(self):
         return len(self.data) == 0

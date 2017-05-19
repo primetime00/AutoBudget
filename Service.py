@@ -101,7 +101,7 @@ class Service:
                 print(l)
             return False
 
-        budget = Budget(date=date)
+        budget = Budget(date=date, output="C:\\tmp\\trans.csv")
         results = budget.Run(processor.GetTransactions())
         Email().Run(results)
         return True

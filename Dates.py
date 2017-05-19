@@ -1,5 +1,6 @@
 from datetime import date, datetime, time, timedelta
 from calendar import monthrange
+from dateutil import relativedelta
 
 class Dates():
     dateArray = [
@@ -144,6 +145,24 @@ class Dates():
         v = self.getDate()
         return datetime(v.year + int(v.month / 12), ((v.month % 12) + 1), 1)
 
+    @staticmethod
+    def monthDifference(firstDate, secondDate):
+        delta = 0
+        d1 = firstDate.getDate()
+        d2 = secondDate.getDate()
+        if d1 < d2:
+            d3 = d1
+            d1 = d2
+            d2 = d3
+
+        d1 = d1.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        d2 = d2.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        r = relativedelta.relativedelta(d1, d2)
+        months = []
+        for m in range(0, r.months+1):
+            current = d2+relativedelta.relativedelta(months=m)
+            months.append(Dates(current.month, current.year))
+        return months
 
 
 

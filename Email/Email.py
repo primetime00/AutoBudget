@@ -53,10 +53,12 @@ class Email:
         html.insert(0, head)
 
         title = soup.find('h2')
-        title.string = title.text.replace("[Date]", self.date.getDate().strftime('%B'))
         date = data["date"]
         if not date.isCurrentMonthAndYear():
+            title.string = title.text.replace("[Date]", date.getDate().strftime('%B'))
             title.string = "---Final " + title.string + "---"
+        else:
+            title.string = title.text.replace("[Date]", self.date.getDate().strftime('%B'))
 
         summaryTable = soup.find('div', {'class':'summaryTable'})
         cell = self.modifyCell(summaryTable, 'remaining', "$"+format(remaining, '.2f'))
@@ -87,6 +89,9 @@ class Email:
     def createTransactionTable(self, tableDiv, data, soup):
         top = data["topSpends"]
         table = tableDiv.find('table')
+        if top == None:
+            table['class'] = 'hidden'
+            return
         for item in top:
             row = soup.new_tag('tr')
             cell1 = soup.new_tag('td')

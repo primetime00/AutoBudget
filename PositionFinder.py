@@ -96,10 +96,10 @@ def on_release(key):
     Capture().on_release(key)
 
 
-screen = Image.open(imagedir+"\\screen.png")
-haystack = screen.load()
-cap = Image.open(imagedir+"\\cap.png")
-needle = cap.load()
+# screen = Image.open(imagedir+"\\screen.png")
+# haystack = screen.load()
+# cap = Image.open(imagedir+"\\cap.png")
+# needle = cap.load()
 
 # import datetime
 # n1 = datetime.datetime.now()
@@ -108,23 +108,23 @@ needle = cap.load()
 # n2 = datetime.datetime.now()
 # print(n2-n1)
 
-mListener = MouseListener(on_click=on_click)
-kListener = KeyboardListener(on_press=on_press, on_release=on_release)
+# mListener = MouseListener(on_click=on_click)
+# kListener = KeyboardListener(on_press=on_press, on_release=on_release)
 
 #with MouseListener(on_click=on_click) as listener:
 #    listener.join()
 
-c = Capture()
-mListener.start()
-kListener.start()
+# c = Capture()
+# mListener.start()
+# kListener.start()
+#
+#
+# mListener.join()
+# kListener.join()
 
-
-mListener.join()
-kListener.join()
-
-#while 1:
-#    x,y = win32api.GetCursorPos()
-#    if x != oldX or y != oldY:
-#        print(x-rect.left, y-rect.top)
-#        oldY = y
-#        oldX = x
+while 1:
+   x,y = win32api.GetCursorPos()
+   if x != oldX or y != oldY:
+       print(x-rect.left, y-rect.top)
+       oldY = y
+       oldX = x

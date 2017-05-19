@@ -30,6 +30,7 @@ class WellsFargoBankWeb(BankWeb):
         self.Wait("Wells Fargo", timeout=5, post_delay=9)
         self.ClickLoc(496, 374)
         self.Wait("Wells Fargo", timeout=4, post_delay=3)
+        self.SetYOffset(17)
         self.ClickLoc(179, 638)
         self.ClickLoc(253, 895)
         sleep(0.25)
@@ -45,7 +46,8 @@ class WellsFargoBankWeb(BankWeb):
         sleep(0.5)
         self.ClickLoc(756, 811)
         self.Press('{}/{}/{}'.format(month, today.day, year))
-        sleep(0.5)
+        sleep(5.5)
+        self.SetYOffset(0)
         self.ClickLoc(1089, 1012)
         self.Wait("Wells Fargo", timeout=4, post_delay=2.5)
 
